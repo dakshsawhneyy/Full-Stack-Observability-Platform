@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  node-app:
+    build: Sample-node-app/
+    container_name: node-app
+    ports:
+      - "9000:9000"
+    depends_on:
+      - fluentd
+    networks:
+      - efk
+  ElasticSearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.1
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node   # required for dev mode
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m   # memory tuning otherwise, it will crash
+    networks:
+      - efk
+  fluentd:
+    image: fluent/fluentd:latest
+    container_name: fluentd
+    ports:
+      - "24224:24224"
+    volumes:
+      - ./fluentd.config:/fluentd/etc/fluent.conf
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    networks:
+      - efk
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.13.1
+    container_name: kibana
+    ports:
+     - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    networks:
+      - efk
+      
+
+networks:
+  efk:
+    driver: bridge
