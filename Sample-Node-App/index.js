@@ -1,9 +1,10 @@
 const express = require('express')
 const {v4:uuid} = require('uuid')
+const fs = require('fs')
 
 const app = express();
 
-levels = ["info", "debug", "error", "warn", "critical"]
+const levels = ["info", "debug", "error", "warn", "critical"]
 
 app.get('/daksh', (req,res) => {
     res.send("Hello Daksh");
@@ -19,7 +20,7 @@ app.get('/daksh', (req,res) => {
     // console.error(`[${new Date().toISOString()}] Error Occured:`)
 
     // ! Production Level Stuff
-    console.log(JSON.stringify({
+    const log = JSON.stringify({
         timestamp: new Date().toISOString(),
         level: levels[Math.floor(Math.random() * levels.length)],   // Random Level
         message: "GET /daksh endpoint called",
@@ -27,7 +28,8 @@ app.get('/daksh', (req,res) => {
         ip: req.ip,
         service: 'daksh',
         request_id: requestId
-    }))
+    }) 
+    fs.appendFileSync('app.log', log + '\n')
 })
 
 app.get('/shubu', (req,res) => {
@@ -44,7 +46,7 @@ app.get('/shubu', (req,res) => {
     // console.error(`[${new Date().toISOString()}] Error Occured:`)
 
     // ! Production Level Stuff
-    console.log(JSON.stringify({
+    const log = JSON.stringify({
         timestamp: new Date().toISOString(),
         level: levels[Math.floor(Math.random() * levels.length)],   // Random Level
         message: "GET /shubu endpoint called",
@@ -52,7 +54,9 @@ app.get('/shubu', (req,res) => {
         ip: req.ip,
         service: 'shubu',
         request_id: requestId
-    }))
+    })
+
+    fs.appendFileSync('app.log', log + '\n')
 })
 
-app.listen(9000, () => console.log(`Listening on Port 9000`));
+app.listen(9001, () => console.log(`Listening on Port 9001`));
