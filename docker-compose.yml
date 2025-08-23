@@ -10,7 +10,7 @@ services:
       - fluentd
     networks:
       - efk
-  ElasticSearch:
+  elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.13.1
     container_name: elasticsearch
     ports:
@@ -21,12 +21,12 @@ services:
     networks:
       - efk
   fluentd:
-    image: fluent/fluentd:latest
+    build: .
     container_name: fluentd
     ports:
       - "24224:24224"
     volumes:
-      - ./fluentd.config:/fluentd/etc/fluent.conf
+      # Mount host docker container with fluentd container and ro means read only
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
     networks:
       - efk
@@ -39,7 +39,7 @@ services:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     networks:
       - efk
-      
+  
 
 networks:
   efk:
