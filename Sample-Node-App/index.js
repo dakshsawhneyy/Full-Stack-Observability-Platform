@@ -6,6 +6,10 @@ const app = express();
 
 const levels = ["info", "debug", "error", "warn", "critical"]
 
+app.get('/', (req,res) => {
+    res.send("Hello Beautiful");
+})
+
 app.get('/daksh', (req,res) => {
     res.send("Hello Daksh");
     
@@ -59,4 +63,4 @@ app.get('/shubu', (req,res) => {
     fs.appendFileSync('app.log', log + '\n')
 })
 
-app.listen(9001, () => console.log(`Listening on Port 9001`));
+app.listen(9000, () => console.log(`Listening on Port 9000`));
