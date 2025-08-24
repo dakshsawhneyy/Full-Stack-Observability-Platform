@@ -2,45 +2,41 @@ version: "3.8"
 
 services:
   node-app:
-    build: Sample-node-app/
+    build: Sample-Node-App/.
     container_name: node-app
     ports:
       - "9000:9000"
-    depends_on:
-      - fluentd
     networks:
-      - efk
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.1
-    container_name: elasticsearch
-    ports:
-      - "9200:9200"
-    environment:
-      - discovery.type=single-node   # required for dev mode
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m   # memory tuning otherwise, it will crash
-    networks:
-      - efk
-  fluentd:
-    build: .
-    container_name: fluentd
-    ports:
-      - "24224:24224"
+      - prom
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
     volumes:
-      # Mount host docker container with fluentd container and ro means read only
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-    networks:
-      - efk
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.13.1
-    container_name: kibana
+      - ./prom-config.yml:/etc/prometheus/prometheus.yml
     ports:
-     - "5601:5601"
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - "9090:9090"
     networks:
-      - efk
-  
+      - prom
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - prom
+  loki:
+    image: grafana/loki
+    container_name: loki
+    ports:
+      - "3100:3100"
+    networks:
+      - prom
+
+volumes:
+  grafana-storage:
 
 networks:
-  efk:
+  prom:
     driver: bridge
